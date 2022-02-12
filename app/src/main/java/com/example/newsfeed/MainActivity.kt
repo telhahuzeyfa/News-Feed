@@ -2,9 +2,14 @@ package com.example.newsfeed
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.EditText
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var searchButton: EditText
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        searchButton.isEnabled = false
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
     }

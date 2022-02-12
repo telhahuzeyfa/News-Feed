@@ -4,4 +4,13 @@
     <string name="login">Login</string>
     <string name="password">Password</string>
     <string name="username">Username</string>
+    <string name="TextView">Term Search</string>
+    <string name="termSearch">Term Search</string>
+    <string name="search">Search</string>
+    <string name="newsLocation">News Location</string>
+    <string name="viewMapButton">View Map</string>
+    <string name="topHeadlines">Top Headlines</string>
+    <string name="viewTopHeadlines">VIEW TOP HEADLINES</string>
+    <string name="catagory">Catagory</string>
+    <string name="searchButton">search</string>
 </resources>
