@@ -8,8 +8,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var searchButton: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        searchButton.isEnabled = false
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
     }
