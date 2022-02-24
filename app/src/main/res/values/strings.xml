@@ -1,15 +1,17 @@
 <resources>
     <string name="app_name">NewsFeed</string>
-    <string name="title">Title</string>
+    <string name="homeTitleTermS">Title</string>
     <string name="login">Login</string>
     <string name="password">Password</string>
     <string name="username">Username</string>
     <string name="TextView">Term Search</string>
-    <string name="termSearch">Term Search</string>
-    <string name="search">Search</string>
-    <string name="newsLocation">News Location</string>
-    <string name="viewMapButton">View Map</string>
-    <string name="topHeadlines">Top Headlines</string>
+    <string name="termSearchHomePage">Term Search</string>
+    <string name="termSearchHintHomePage">Term Search</string>
+    <string name="quickSearchHome">Search</string>
+    <string name="advanceSearchHome">Advance Search</string>
+    <string name="newsByLocationHome">News By Location</string>
+    <string name="viewMapButtonHome">View Map</string>
+    <string name="topHeadlinesHome">Top Headlines</string>
     <string name="viewTopHeadlines">VIEW TOP HEADLINES</string>
     <string name="catagory">Catagory</string>
     <string name="searchButton">search</string>
