@@ -9,12 +9,14 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/searchCardView"
         android:layout_width="match_parent"
+        android:layout_gravity="center"
         android:layout_height="wrap_content"
         android:layout_margin="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
             android:orientation="vertical">
 
             <TextView
@@ -26,35 +28,21 @@
                 android:textFontWeight="700"
                 android:textSize="16sp" />
 
-            <SearchView
+            <EditText
                 android:id="@+id/termSearch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:inputType="text"
                 android:layout_marginTop="8dp"
                 android:iconifiedByDefault="false"
-                android:queryHint="@string/termSearchHintHomePage" />
+                android:hint="@string/searchHint"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <Button
+                android:id="@+id/searchHome"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/quickSearch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/quickSearchHome" />
-
-                <Button
-                    android:id="@+id/advanceSearch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/advanceSearchHome" />
-            </LinearLayout>
-
+                android:layout_gravity="center"
+                android:text="@string/searchHome" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -96,6 +84,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="vertical">
             <TextView
                 android:layout_width="match_parent"
@@ -125,6 +114,12 @@
                 android:text="@string/viewTopHeadlines" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>
 
 
