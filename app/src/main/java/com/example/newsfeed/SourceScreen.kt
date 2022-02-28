@@ -2,27 +2,93 @@ package com.example.newsfeed
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
 import android.widget.Spinner
 import android.widget.ArrayAdapter
-
+import android.widget.TextView
+import android.widget.*
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.find
 
 class SourceScreen : AppCompatActivity() {
+    private lateinit var spinnerCategory: Spinner
+    private lateinit var selectSourcesText: TextView
+    private lateinit var sourcesRecyclerView: RecyclerView
+    private lateinit var sourceAdapter: SourceAdapter
+    private lateinit var skipSourceButton: Button
+
+    //initially selected category
+    private  var selectedCategoryIndex = 0
+    var selectedSources = arrayListOf<String>()
+    companion object{
+        var listOfCategories = arrayOf("Business", "Entertainment", "General", "Health", "Science", "Sports", "Technology")
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.sources_screen)
 
-//        val spinner: Spinner = findViewById(R.id.spinner)
-//// Create an ArrayAdapter using the string array and a default spinner layout
-//        ArrayAdapter.createFromResource(
-//            this,
-//            R.array.planets_array,
-//            android.R.layout.simple_spinner_item
-//        ).also { adapter ->
-//            // Specify the layout to use when the list of choices appears
-//            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//            // Apply the adapter to the spinner
-//            spinner.adapter = adapter
-//        }
-    }
+        val newsAPIKey = getString(R.string.news_api_key)
 
+
+        spinnerCategory = findViewById(R.id.spinnerCatagory)
+        selectSourcesText = findViewById(R.id.selectSourcesText)
+        sourcesRecyclerView = findViewById(R.id.sourcesRecycler)
+        skipSourceButton = findViewById(R.id.skipSourceButton)
+
+
+        //Initialize the spinner adapter
+        val categorySpinnerAdapter =
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                listOfCategories
+            )
+        //Initialize the category spinner
+        spinnerCategory.adapter = categorySpinnerAdapter
+        spinnerCategory.setSelection(selectedCategoryIndex)
+
+        spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                selectSourcesText.text = "0 Sources Selected"
+                selectSourcesText.text = "Sources (select at least 1)"
+                selectedCategoryIndex = position
+                val newsManger = NewsManager()
+                doAsync {
+                    val sources: List<Source> =
+                    newsManger.retrieveSources(newsAPIKey, listOfCategories[selectedCategoryIndex])
+                    sourceAdapter = SourceAdapter(sources)
+                    runOnUiThread {
+                        selectedSources = sourceAdapter.getCheckList()
+                        sourcesRecyclerView.adapter = sourceAdapter
+                        sourcesRecyclerView.layoutManager = LinearLayoutManager(this@SourceScreen)
+                    }
+                }
+            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+        }
+        skipSourceButton.setOnClickListener { view: View ->
+
+            val newsManger = NewsManager()
+            doAsync {
+                for (element in listOfCategories){
+                    val sources: List<Source> =
+                    newsManger.retrieveSources(newsAPIKey, element)
+                    sourceAdapter = SourceAdapter(sources)
+                }
+                runOnUiThread {
+                    selectedSources = sourceAdapter.getCheckList()
+                    sourcesRecyclerView.adapter = sourceAdapter
+                    sourcesRecyclerView.layoutManager = LinearLayoutManager(this@SourceScreen)
+                }
+            }
+        }
+    }
 }

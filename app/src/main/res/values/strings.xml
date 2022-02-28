@@ -7,12 +7,17 @@
     <string name="TextView">Term Search</string>
     <string name="termSearchHomePage">Term Search</string>
     <string name="termSearchHintHomePage">Term Search</string>
-    <string name="quickSearchHome">Search</string>
-    <string name="advanceSearchHome">Advance Search</string>
+    <string name="searchHome">Search</string>
+    <string name="searchHint">Search</string>
     <string name="newsByLocationHome">News By Location</string>
     <string name="viewMapButtonHome">View Map</string>
     <string name="topHeadlinesHome">Top Headlines</string>
     <string name="viewTopHeadlines">VIEW TOP HEADLINES</string>
     <string name="catagory">Catagory</string>
+    <string name="sourceTitle">Sources</string>
+    <string name="individualSourceTitle">Title</string>
     <string name="searchButton">search</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="maps_instructions">Long-press to select a location</string>
+    <string name="news_api_key"></string>
 </resources>
