@@ -27,8 +27,7 @@
                 android:text="@string/termSearchHomePage"
                 android:textFontWeight="700"
                 android:textSize="16sp" />
-
-            <EditText
+            <SearchView
                 android:id="@+id/termSearch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -36,7 +35,6 @@
                 android:layout_marginTop="8dp"
                 android:iconifiedByDefault="false"
                 android:hint="@string/searchHint"/>
-
             <Button
                 android:id="@+id/searchHome"
                 android:layout_width="wrap_content"
@@ -102,15 +100,15 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/headlineRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="16dp"/>
+                android:layout_width="363dp"
+                android:layout_height="195dp"
+                android:padding="16dp" />
 
             <Button
                 android:id="@+id/viewTopHeadlines"
                 android:layout_width="wrap_content"
-                android:layout_gravity="center"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:text="@string/viewTopHeadlines" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -120,6 +118,7 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-</LinearLayout>
+
+    testResultButton</LinearLayout>
 
 

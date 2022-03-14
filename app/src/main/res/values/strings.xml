@@ -19,5 +19,6 @@
     <string name="searchButton">search</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="maps_instructions">Long-press to select a location</string>
-    <string name="news_api_key"></string>
+    <string name="maps_titleMapResultsScreen">Can not load address</string>
+    <string name="news_api_key">c2fcdaba168f4ced9261152d382caa92</string>
 </resources>

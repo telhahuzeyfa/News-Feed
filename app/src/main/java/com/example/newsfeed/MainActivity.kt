@@ -3,21 +3,25 @@ package com.example.newsfeed
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import org.jetbrains.anko.doAsync
 
 class MainActivity : AppCompatActivity(){
 
-    private lateinit var termSearchBox: EditText
+    private lateinit var termSearchBox: SearchView
     private lateinit var searchButton: Button
     private lateinit var viewMapButton: Button
     private lateinit var viewTopHeadlneButton: Button
     private lateinit var progressBar: ProgressBar
+    private lateinit var headlineRecycler: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,47 +34,90 @@ class MainActivity : AppCompatActivity(){
         viewMapButton = findViewById(R.id.viewMap)
         viewTopHeadlneButton = findViewById(R.id.viewTopHeadlines)
         progressBar = findViewById(R.id.progressBar)
+        headlineRecycler = findViewById(R.id.headlineRecycler)
+
 
         progressBar.visibility = View.INVISIBLE
         searchButton.isEnabled = false
 
-        termSearchBox.addTextChangedListener(textWatcher)
-        searchButton.setOnClickListener { view: View ->
-            val inputtedText: String = termSearchBox.text.toString()
+        val savedQuery = sharedPrefs.getString("SAVED_QUERY", "")
 
-            // Save the username to SharedPreferences
-            sharedPrefs
-                .edit()
-                .putString("TEXT", inputtedText)
-                .apply()
+        searchButton.isEnabled = savedQuery!!.isNotBlank()
 
+        // Save and load the previous query
+        termSearchBox.setQuery(savedQuery, false)
+        termSearchBox.setOnSearchClickListener {
+            startActivity(
+                Intent(
+                    applicationContext,
+                    SourceScreen::class.java
+                ).putExtra("quickSearchQuery", termSearchBox.query.toString())
+            )
+            sharedPrefs.edit().putString("SAVED_QUERY", termSearchBox.query.toString()).apply()
+        }
+        //Homepage recycler layout
+        var news: List<TopHeadline> = listOf()
+
+        val topHeadlineAdapter = TopHeadlineAdapter(news)
+        doAsync {
+            if (news == null) {
+                Log.e("MapsActivity", "Empty Headline")
+            }
+            runOnUiThread {
+                headlineRecycler.adapter = topHeadlineAdapter
+                headlineRecycler.layoutManager = LinearLayoutManager(
+                    this@MainActivity,
+                    LinearLayoutManager.VERTICAL,
+                    false
+                )
+            }
+        }
+        termSearchBox.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
+            androidx.appcompat.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                //Save search
+                startActivity(
+                    Intent(
+                        applicationContext,
+                        SourceScreen::class.java
+                    ).putExtra("quickSearchQuery", termSearchBox.query.toString())
+                )
+                sharedPrefs.edit().putString("SAVED_QUERY", query).apply()
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                searchButton.isEnabled = !termSearchBox.query.isBlank()
+                if (termSearchBox.query.isBlank()) {
+                    sharedPrefs.edit().putString("SAVED_QUERY", "").apply()
+                } else {
+                    sharedPrefs.edit().putString("SAVED_QUERY", newText).apply()
+                }
+                return searchButton.isEnabled
+            }
+        })
+        searchButton.setOnClickListener {
             progressBar.visibility = View.VISIBLE
-
-            // An Intent is used to start a new Activity.
-           val intent: Intent = Intent(this, SourceScreen::class.java)
-
-            //Start Activity
-            startActivity(intent)
+            startActivity(
+                Intent(
+                    applicationContext,
+                    SourceScreen::class.java
+                ).putExtra("quickSearchQuery", termSearchBox.query.toString())
+            )
+            sharedPrefs.edit().putString("SAVED_QUERY", termSearchBox.query.toString()).apply()
         }
+        progressBar.visibility = View.INVISIBLE
+
+        //Go to the map page
         viewMapButton.setOnClickListener { view: View ->
+            Toast.makeText( getBaseContext(), "Long Press on the map",Toast.LENGTH_SHORT).show();
             val intent: Intent = Intent(this, MapsActivity::class.java)
-
             startActivity(intent)
         }
-        // Using the same TextWatcher instance for both EditTexts so the same block of code runs on each character.
-        termSearchBox.addTextChangedListener(textWatcher)
-
-        //Restore the saved value from SharedPreference and display it to the user when the screen loads
-        val savedSearchValues = sharedPrefs.getString("TEXT", "")
-    }
-    private val textWatcher: TextWatcher = object: TextWatcher{
-        override fun afterTextChanged(p0: Editable?) {}
-
-        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            val inputtedText: String = termSearchBox.text.toString()
-            val enableButton: Boolean = inputtedText.isNotBlank()
-            searchButton.isEnabled = enableButton
+        // Go to to the top headline page
+        viewTopHeadlneButton.setOnClickListener { view: View ->
+            val intent: Intent = Intent(this, TopHeadlineScreen::class.java)
+            startActivity(intent)
         }
-        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
     }
 }

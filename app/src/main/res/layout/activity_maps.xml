@@ -16,28 +16,38 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:context=".MapsActivity" />
 
-    <Button
-        android:id="@+id/confirm"
-        android:layout_width="0dp"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/mapsLocalNewsCard"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/buttonGreen"
-        android:text="@string/maps_instructions"
-        app:icon="@drawable/ic_close"
+        android:layout_margin="16dp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        tools:layout_editor_absoluteX="16dp">
 
-    <ImageButton
-        android:id="@+id/current_location"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_my_location" />
+        <LinearLayout
+            android:id="@+id/mapResults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/maps_titleMapResultsScreen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center"
+                android:text="@string/maps_titleMapResultsScreen"
+                android:textFontWeight="700"
+                android:textSize="16sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/localNewsRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="20dp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

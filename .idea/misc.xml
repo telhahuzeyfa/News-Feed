@@ -6,12 +6,16 @@
         <entry key="app/src/main/res/drawable/ic_close.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/ic_my_location.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/is_check.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_maps 2.xml" value="0.17314814814814813" />
-        <entry key="app/src/main/res/layout/activity_maps.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_maps.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_maps2.xml" value="0.17314814814814813" />
-        <entry key="app/src/main/res/layout/row_sources.xml" value="0.2223731884057971" />
-        <entry key="app/src/main/res/layout/sources_screen.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_results.xml" value="0.2708333333333333" />
+        <entry key="app/src/main/res/layout/row_news.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/row_sources.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/row_top_headlines.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/sources_screen.xml" value="0.32286995515695066" />
+        <entry key="app/src/main/res/layout/top_headlines.xml" value="0.1925233644859813" />
       </map>
     </option>
   </component>

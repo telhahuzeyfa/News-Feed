@@ -1,5 +1,6 @@
 package com.example.newsfeed
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.Spinner
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.*
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.jetbrains.anko.doAsync
@@ -30,6 +32,8 @@ class SourceScreen : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.sources_screen)
 
+        var query = intent.getStringExtra("quickSearchQuery")
+
         val newsAPIKey = getString(R.string.news_api_key)
 
 
@@ -38,6 +42,7 @@ class SourceScreen : AppCompatActivity() {
         sourcesRecyclerView = findViewById(R.id.sourcesRecycler)
         skipSourceButton = findViewById(R.id.skipSourceButton)
 
+        this.title = "Search for $query"
 
         //Initialize the spinner adapter
         val categorySpinnerAdapter =
@@ -74,7 +79,9 @@ class SourceScreen : AppCompatActivity() {
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {}
         }
-        skipSourceButton.setOnClickListener { view: View ->
+       skipSourceButton.setOnClickListener { view: View ->
+           var query = intent.getStringExtra("quickSearchQuery")
+           this.title = "Search results for $query"
 
             val newsManger = NewsManager()
             doAsync {

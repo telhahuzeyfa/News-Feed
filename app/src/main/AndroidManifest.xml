@@ -39,6 +39,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".SourceScreen"></activity>
+        <activity android:name=".TopHeadlineScreen"></activity>
     </application>
 
 </manifest>

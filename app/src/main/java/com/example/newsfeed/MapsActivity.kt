@@ -1,15 +1,21 @@
 package com.example.newsfeed
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.location.Address
 import android.location.Geocoder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
-import com.example.newsfeed.databinding.ActivityMapsBinding
+import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -22,30 +28,23 @@ import org.jetbrains.anko.doAsync
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    private var currentAddress: Address? = null
-
-    private lateinit var currentLocation: ImageButton
-    private lateinit var confirm: MaterialButton
-
     private lateinit var mMap: GoogleMap
-    private lateinit var binding: ActivityMapsBinding
+    private lateinit var localNews: CardView
+    private lateinit var localNewsRecycler: RecyclerView
+    private lateinit var localMapResultsScreen: TextView
+
+    private val logD = "MapsActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_maps)
 
-        binding = ActivityMapsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        localNews = findViewById(R.id.mapsLocalNewsCard)
+        localNewsRecycler = findViewById(R.id.localNewsRecycler)
+        localNews.visibility = View.GONE
+        localMapResultsScreen = findViewById(R.id.maps_titleMapResultsScreen)
+        this.title = "News by location"
 
-        currentLocation = findViewById(R.id.current_location)
-        confirm = findViewById(R.id.confirm)
-
-        confirm.setOnClickListener {
-            if (currentAddress != null) {
-                val tweetsIntent = Intent(this, SourceScreen::class.java)
-                tweetsIntent.putExtra("address", currentAddress)
-                startActivity(tweetsIntent)
-            }
-        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -59,51 +58,156 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * This is where we can add markers or lines, add listeners or move the camera.
      */
     override fun onMapReady(googleMap: GoogleMap) {
+        // Load saved coordinates
+        val sharedPrefs: SharedPreferences =
+            getSharedPreferences("android-news", Context.MODE_PRIVATE)
+        var latitude = sharedPrefs.getString("SAVED_LATITUDE", "0.0")!!.toDouble()
+        var longitude = sharedPrefs.getString("SAVED_LONGITUDE", "0.0")!!.toDouble()
+        var loadCoordinates = LatLng(latitude, longitude)
+
         mMap = googleMap
+        val newsAPIKey = getString(R.string.news_api_key)
+        var news: List<News> = listOf()
 
-        mMap.setOnMapLongClickListener { coords: LatLng ->
-            mMap.clear()
+        doAsync {
+            val geocode = Geocoder(this@MapsActivity)
+            //Get the default address
+            val results: List<Address> = try {
+                geocode.getFromLocation(
+                    loadCoordinates.latitude,
+                    loadCoordinates.longitude,
+                    10
+                )
+            } catch (exception: Exception) {
+                listOf()
+            }
 
-            doAsync {
-                val geocoder: Geocoder = Geocoder(this@MapsActivity)
-                val results: List<Address> = try {
-                    geocoder.getFromLocation(
-                        coords.latitude,
-                        coords.longitude,
-                        10
+            // Cannot find address
+            if (results == null || results == emptyList<Address>()) {
+                localMapResultsScreen.text = "Cannot Load Current Address"
+            } else {
+                localMapResultsScreen.text = "Results for ${results.first().adminArea}"
+                val temp = NewsManager()
+                news = temp.fetchMapNews(newsAPIKey, results)
+            }
+            val newsAdapter = NewsAdapter(news)
+            runOnUiThread {
+                sharedPrefs.edit().putString("SAVED_LATITUDE", loadCoordinates.latitude.toString())
+                    .apply()
+                sharedPrefs.edit()
+                    .putString("SAVED_LONGITUDE", loadCoordinates.longitude.toString())
+                    .apply()
+
+                if (results.size != 0) {
+                    mMap.addMarker(
+                        MarkerOptions().position(loadCoordinates).title(results.first().adminArea)
                     )
-                } catch(exception: Exception) {
-                    Log.e("MapsActivity", "Geocoding failed!", exception)
+                }
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(loadCoordinates))
+                localNews.visibility = View.VISIBLE
+                localNewsRecycler.adapter = newsAdapter
+                localNewsRecycler.layoutManager = LinearLayoutManager(
+                    this@MapsActivity,
+                    LinearLayoutManager.HORIZONTAL,
+                    false
+                )
+            }
+        }
+        mMap.setOnMapLongClickListener { coord: LatLng ->
+            mMap.clear()
+            doAsync {
+                val geocode = Geocoder(this@MapsActivity)
+                sharedPrefs.edit().putString("SAVED_LATITUDE", coord.latitude.toString()).apply()
+                sharedPrefs.edit().putString("SAVED_LONGITUDE", coord.longitude.toString()).apply()
+                //Get the address of the pressed location
+                val results: List<Address> = try {
+                    geocode.getFromLocation(
+                        coord.latitude,
+                        coord.longitude,
+                       5
+                    )
+                } catch (exception: Exception) {
+                    Log.e("MapsActivity", "Geocoder failed:", exception)
                     listOf()
                 }
-
-                runOnUiThread {
-                    if (results.isNotEmpty()) {
-                        val firstResult = results[0]
-                        val addressLine = firstResult.getAddressLine(0)
-
-                        val marker = MarkerOptions()
-                            .position(coords)
-                            .title(addressLine)
-
-                        mMap.addMarker(marker)
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coords, 10.0f))
-
-                        updateConfirmButton(firstResult)
-                    } else {
-                        Toast.makeText(this@MapsActivity, "No results found!", Toast.LENGTH_LONG).show()
+                if (results == null || results == emptyList<Address>()) {
+                    localMapResultsScreen.text = "Cannot Load Current Address"
+                } else {
+                    val temp = NewsManager()
+                    news = temp.fetchMapNews(newsAPIKey, results)
+                }
+                val newsAdapter = NewsAdapter(news)
+                when {
+                    results.first().countryName == "United States" && results.first().adminArea != null && (news != null || news != emptyList<News>()) -> {
+                        localMapResultsScreen.text = "Results for ${results.first().adminArea}"
+                        runOnUiThread {
+                            mMap.addMarker(
+                                MarkerOptions().position(coord).title(results[0].adminArea)
+                            )
+                            mMap.animateCamera(CameraUpdateFactory.newLatLng(coord))
+                            localNews.visibility = View.VISIBLE
+                            localNewsRecycler.adapter = newsAdapter
+                            localNewsRecycler.layoutManager = LinearLayoutManager(
+                                this@MapsActivity,
+                                LinearLayoutManager.HORIZONTAL,
+                                false
+                            )
+                        }
+                    }
+                    results.first().countryName != null && (news != null || news != emptyList<News>()) -> {
+                        localMapResultsScreen.text =
+                            "Results for ${results.first().countryName}"
+                        runOnUiThread {
+                            mMap.addMarker(
+                                MarkerOptions().position(coord).title(results[0].adminArea)
+                            )
+                            mMap.animateCamera(CameraUpdateFactory.newLatLng(coord))
+                            localNews.visibility = View.VISIBLE
+                            localNewsRecycler.adapter = newsAdapter
+                            localNewsRecycler.layoutManager = LinearLayoutManager(
+                                this@MapsActivity,
+                                LinearLayoutManager.HORIZONTAL,
+                                false
+                            )
+                        }
+                    }
+                    results.first().countryName == null -> {
+                        localMapResultsScreen.text =
+                            "No results for Ocean"
+                        runOnUiThread {
+                            mMap.addMarker(
+                                MarkerOptions().position(coord).title(results[0].adminArea)
+                            )
+                            mMap.animateCamera(CameraUpdateFactory.newLatLng(coord))
+                            Log.e("MapsActivity", "Results response received generating news")
+                            localNews.visibility = View.VISIBLE
+                            localNewsRecycler.adapter = newsAdapter
+                            localNewsRecycler.layoutManager = LinearLayoutManager(
+                                this@MapsActivity,
+                                LinearLayoutManager.HORIZONTAL,
+                                false
+                            )
+                        }
+                    }
+                    else -> {
+                        localMapResultsScreen.text =
+                            "No results for Ocean"
+                        runOnUiThread {
+                            mMap.addMarker(
+                                MarkerOptions().position(coord).title(results[0].adminArea)
+                            )
+                            mMap.animateCamera(CameraUpdateFactory.newLatLng(coord))
+                            localNews.visibility = View.VISIBLE
+                            localNewsRecycler.adapter = newsAdapter
+                            localNewsRecycler.layoutManager = LinearLayoutManager(
+                                this@MapsActivity,
+                                LinearLayoutManager.HORIZONTAL,
+                                false
+                            )
+                        }
                     }
                 }
             }
         }
-    }
-
-    private fun updateConfirmButton(address: Address) {
-        // Flip button to green
-        // Change icon to check
-        currentAddress = address
-        confirm.icon = AppCompatResources.getDrawable(this, R.drawable.ic_check)
-        confirm.text = address.getAddressLine(0)
-        confirm.setBackgroundColor(getColor(R.color.buttonGreen))
     }
 }
